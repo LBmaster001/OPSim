@@ -1,5 +1,5 @@
 <?php
-include_once 'config.php';
+include_once $_SERVER['DOCUMENT_ROOT']. '/config.php';
   function GetLocalMySQLConnection()
   {
 	 global $dBservername, $dBUsername, $dBPassword, $dBName;
