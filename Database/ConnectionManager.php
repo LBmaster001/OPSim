@@ -1,13 +1,10 @@
 <?php
-
+include_once 'config.php';
   function GetLocalMySQLConnection()
   {
-     $hostname = (!empty(getenv("MYSQL_SERVER_NAME")) ? getenv("MYSQL_SERVER_NAME") : "localhost");
-     $username = (!empty(getenv("MYSQL_SERVER_USER_NAME")) ? getenv("MYSQL_SERVER_USER_NAME") : "root");
-     $password = (!empty(getenv("MYSQL_ROOT_PASSWORD")) ? getenv("MYSQL_ROOT_PASSWORD") : "");
-     $database = "swuonline";
+	 global $dBservername, $dBUsername, $dBPassword, $dBName;
 	   try {
-       return mysqli_connect($hostname, $username, $password, $database);
+       return mysqli_connect($dBservername, $dBUsername, $dBPassword, $dBName);
      } catch (\Exception $e) {
 
      }

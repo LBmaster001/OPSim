@@ -1,10 +1,5 @@
 <?php
-
-$servername = (!empty(getenv("MYSQL_SERVER_NAME")) ? getenv("MYSQL_SERVER_NAME") : "localhost");
-$dBUsername = (!empty(getenv("MYSQL_SERVER_USER_NAME")) ? getenv("MYSQL_SERVER_USER_NAME") : "root");
-$dBPassword = (!empty(getenv("MYSQL_ROOT_PASSWORD")) ? getenv("MYSQL_ROOT_PASSWORD") : "");
-$dBName = "swuonline";
-
+include_once 'config.php';
 $conn = GetDBConnection();
 
 if (!$conn) {
@@ -13,9 +8,9 @@ if (!$conn) {
 
 function GetDBConnection()
 {
-	global $servername, $dBUsername, $dBPassword, $dBName;
+	global $dBservername, $dBUsername, $dBPassword, $dBName;
 	try {
-		$conn = mysqli_connect($servername, $dBUsername, $dBPassword, $dBName);
+		$conn = mysqli_connect($dBServername, $dBUsername, $dBPassword, $dBName);
 	} catch (\Exception $e) {
 		$conn = false;
 	}
