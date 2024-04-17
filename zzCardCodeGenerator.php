@@ -2,71 +2,33 @@
 
   include './zzImageConverter.php';
   include './Libraries/Trie.php';
-
-  $hasMoreData = true;
-  $page = 1;
+  
   $titleTrie = [];
   $subtitleTrie = [];
   $costTrie = [];
   $hpTrie = [];
   $powerTrie = [];
+  $leaderLifeTrie = [];
+  $counterTrie = [];
   $aspectsTrie = [];
   $traitsTrie = [];
   $arenasTrie = [];
   $uuidLookupTrie = [];
   $typeTrie = [];
-  $type2Trie = [];
-  while ($hasMoreData)
-  {
-    $jsonUrl = "https://admin.starwarsunlimited.com/api/cards?pagination[page]=" . $page;
-    $curl = curl_init();
-    $headers = array(
-      "Content-Type: application/json",
-    );
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+  $searchTypeTrie = [];
+  $colorTrie = [];
+  $langTrie = [];
+  
+  $data = json_decode(file_get_contents("data.json"));
 
-    curl_setopt($curl, CURLOPT_URL, $jsonUrl);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $cardData = curl_exec($curl);
-    curl_close($curl);
-
-
-    $response = json_decode($cardData);
-    $meta = $response->meta;
-
-    for ($i = 0; $i < count($response->data); ++$i)
+    for ($i = 0; $i < count($data); ++$i)
     {
-      $card = $response->data[$i];
-      $card = $card->attributes;
+      $card = $data[$i];
 
-      if($card->variantOf->data != null) continue;
-
-      $cardNumber = $card->cardNumber;
-      if($cardNumber < 10) $cardNumber = "00" . $cardNumber;
-      else if($cardNumber < 100) $cardNumber = "0" . $cardNumber;
-      $cardID = "SOR_" . $cardNumber;
-      AddToTries($cardID, $card->cardUid);
-
-      $imageUrl = $card->artFront->data->attributes->formats->card->url;
-      CheckImage($card->cardUid, $imageUrl);
-      if($card->artBack->data != null) {
-        $imageUrl = $card->artBack->data->attributes->formats->card->url;
-        $arr = explode("_", $imageUrl);
-        $arr = explode(".", $arr[count($arr)-1]);
-        $uuid = $arr[0];
-        CheckImage($uuid, $imageUrl, isBack:true);
-        AddToTries($cardID, $uuid);
-      }
+      $cardID = $card->id;
+      AddToTries($cardID, $card->id);
     }
-
-    echo("Page: " . $meta->pagination->page . "/" . $meta->pagination->pageCount . "<BR>");
-    ++$page;
-    $hasMoreData = $page <= $meta->pagination->pageCount;
-  }
-  /*
-  subtypes - array
-  */
-
+  $legalIn = "EN"; // EN or JP
 
   if (!is_dir("./GeneratedCode")) mkdir("./GeneratedCode", 777, true);
 
@@ -80,11 +42,15 @@
   GenerateFunction($costTrie, $handler, "CardCost", false, -1);
   GenerateFunction($hpTrie, $handler, "CardHP", false, -1);
   GenerateFunction($powerTrie, $handler, "CardPower", false, -1);
+  GenerateFunction($leaderLifeTrie, $handler, "CardLeaderLife", false, -1);
+  GenerateFunction($counterTrie, $handler, "CardCounter", false, -1);
   GenerateFunction($aspectsTrie, $handler, "CardAspects", true, "");
   GenerateFunction($traitsTrie, $handler, "CardTraits", true, "");
   GenerateFunction($arenasTrie, $handler, "CardArenas", true, "");
   GenerateFunction($typeTrie, $handler, "DefinedCardType", true, "");
-  GenerateFunction($type2Trie, $handler, "DefinedCardType2", true, "");
+  GenerateFunction($searchTypeTrie, $handler, "CardSearchType", true, "");
+  GenerateFunction($colorTrie, $handler, "CardColor", true, "");
+  GenerateFunction($langTrie, $handler, "CardLang", true, "");
 
   GenerateFunction($uuidLookupTrie, $handler, "UUIDLookup", true, "");
 
@@ -101,44 +67,35 @@
 
   function AddToTries($cardID, $uuid)
   {
-    global $uuidLookupTrie, $titleTrie, $subtitleTrie, $costTrie, $hpTrie, $powerTrie, $typeTrie, $type2Trie, $card;
-    global $aspectsTrie, $traitsTrie, $arenasTrie;
+    global $uuidLookupTrie, $titleTrie, $subtitleTrie, $costTrie, $hpTrie, $powerTrie, $typeTrie, $counterTrie, $leaderLifeTrie, $colorTrie, $searchTypeTrie, $langTrie, $card;
+    global $aspectsTrie, $arenasTrie;
     AddToTrie($uuidLookupTrie, $cardID, 0, $uuid);
-    AddToTrie($titleTrie, $uuid, 0, str_replace('"', "'", $card->title));
-    AddToTrie($subtitleTrie, $uuid, 0, str_replace('"', "'", $card->subtitle));
+    AddToTrie($titleTrie, $uuid, 0, str_replace('"', "'", $card->name));
+    AddToTrie($subtitleTrie, $uuid, 0, str_replace('"', "'", $card->effect));
     AddToTrie($costTrie, $uuid, 0, $card->cost);
-    AddToTrie($hpTrie, $uuid, 0, $card->hp);
+    AddToTrie($hpTrie, $uuid, 0, $card->power);
     AddToTrie($powerTrie, $uuid, 0, $card->power);
-    AddToTrie($typeTrie, $uuid, 0, $card->type->data->attributes->name);
-    if($card->type2->data != null) {
-      $type2 = $card->type2->data->attributes->name;
-      if($type2 == "Leader Unit") $type2 = "Unit";
-      AddToTrie($type2Trie, $uuid, 0, $type2);
-    }
+    AddToTrie($typeTrie, $uuid, 0, $card->category);
+    AddToTrie($leaderLifeTrie, $uuid, 0, $card->life);
+    AddToTrie($counterTrie, $uuid, 0, $card->counter);
+    AddToTrie($langTrie, $uuid, 0, $card->lang);
     
-    $aspects = "";
-    for($j = 0; $j < count($card->aspects->data); ++$j)
+    $searchType = "";
+    for($j = 0; $j < count($card->type); ++$j)
     {
-      if($aspects != "") $aspects .= ",";
-      $aspects .= $card->aspects->data[$j]->attributes->name;
+      if($searchType != "") $searchType .= ",";
+      $searchType .= $card->type[$j];
     }
-    AddToTrie($aspectsTrie, $uuid, 0, $aspects);
+    AddToTrie($searchTypeTrie, $uuid, 0, $searchType);
 
-    $traits = "";
-    for($j = 0; $j < count($card->traits->data); ++$j)
+    $colors = "";
+    for($j = 0; $j < count($card->color); ++$j)
     {
-      if($traits != "") $traits .= ",";
-      $traits .= $card->traits->data[$j]->attributes->name;
+      if($colors != "") $colors .= ",";
+      $colors .= $card->color[$j];
     }
-    AddToTrie($traitsTrie, $uuid, 0, $traits);
+    AddToTrie($colorTrie, $uuid, 0, $colors);
 
-    $arenas = "";
-    for($j = 0; $j < count($card->arenas->data); ++$j)
-    {
-      if($arenas != "") $arenas .= ",";
-      $arenas .= $card->arenas->data[$j]->attributes->name;
-    }
-    AddToTrie($arenasTrie, $uuid, 0, $arenas);
   }
 
 ?>
