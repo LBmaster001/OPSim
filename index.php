@@ -1,2 +1,2 @@
 <?php
-header("location: MainMenu.php);
+header("Location: /MainMenu.php");
