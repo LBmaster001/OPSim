@@ -8,7 +8,7 @@ if (!$conn) {
 
 function GetDBConnection()
 {
-	global $dBservername, $dBUsername, $dBPassword, $dBName;
+	global $dBServername, $dBUsername, $dBPassword, $dBName;
 	try {
 		$conn = mysqli_connect($dBServername, $dBUsername, $dBPassword, $dBName);
 	} catch (\Exception $e) {
