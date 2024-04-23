@@ -43,7 +43,7 @@ function LoadFile(string $content) : void {
     $card = $data[$i];
 
     $cardID = $card->id;
-    if (strlen($cardID) > 8) {
+    if ($cardID !== $card->number) {
       echo "Skipping: " . $cardID . "<br>";
       continue;
     
