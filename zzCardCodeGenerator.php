@@ -43,6 +43,11 @@ function LoadFile(string $content) : void {
     $card = $data[$i];
 
     $cardID = $card->id;
+    if (strlen($cardID) > 8) {
+      echo "Skipping: " . $cardID . "<br>";
+      continue;
+    
+    }
     echo "Processing Card: " . $cardID . "<br>";
     AddToTries($cardID, $card->id);
   }
