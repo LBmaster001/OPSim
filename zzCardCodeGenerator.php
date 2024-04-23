@@ -26,6 +26,7 @@ echo "Files in Zip: " . $zipFile->numFiles . "<br>";
 for ($i = 0; $i < $zipFile->numFiles; ++$i)
 {
   $filename = $zipFile->getNameIndex($i);
+  if (strpos($filename, ".json") === false) continue;
   $content = $zipFile->getFromName($filename);
   echo "Loading File: " . $filename . "<br>";
   LoadFile($content);
