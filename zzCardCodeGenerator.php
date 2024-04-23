@@ -1,34 +1,46 @@
 <?php
 
-  include './zzImageConverter.php';
-  include './Libraries/Trie.php';
-  
-  $titleTrie = [];
-  $subtitleTrie = [];
-  $costTrie = [];
-  $hpTrie = [];
-  $powerTrie = [];
-  $leaderLifeTrie = [];
-  $counterTrie = [];
-  $aspectsTrie = [];
-  $traitsTrie = [];
-  $arenasTrie = [];
-  $uuidLookupTrie = [];
-  $typeTrie = [];
-  $searchTypeTrie = [];
-  $colorTrie = [];
-  $langTrie = [];
-  
-  $data = json_decode(file_get_contents("data.json"));
+include './zzImageConverter.php';
+include './Libraries/Trie.php';
 
-    for ($i = 0; $i < count($data); ++$i)
-    {
-      $card = $data[$i];
+$titleTrie = [];
+$subtitleTrie = [];
+$costTrie = [];
+$powerTrie = [];
+$leaderLifeTrie = [];
+$counterTrie = [];
+$aspectsTrie = [];
+$traitsTrie = [];
+$arenasTrie = [];
+$uuidLookupTrie = [];
+$typeTrie = [];
+$searchTypeTrie = [];
+$colorTrie = [];
+$langTrie = [];
+$triggerTrie = [];
 
-      $cardID = $card->id;
-      AddToTries($cardID, $card->id);
-    }
-  $legalIn = "EN"; // EN or JP
+$dataZip = "./data.zip";
+$zipFile = new ZipArchive;
+$zipFile->open($dataZip);
+for ($i = 0; $i < $zipFile->numFiles; ++$i)
+{
+  $filename = $zipFile->getNameIndex($i);
+  $content = $zipFile->getFromName($filename);
+  LoadFile($content);
+}
+$zipFile->close();
+
+function LoadFile(string $content) : void {
+  global $titleTrie, $subtitleTrie, $costTrie, $powerTrie, $leaderLifeTrie, $counterTrie, $aspectsTrie, $traitsTrie, $arenasTrie, $uuidLookupTrie, $typeTrie, $searchTypeTrie, $colorTrie, $langTrie, $triggerTrie;
+  $data = json_decode($content);
+
+  for ($i = 0; $i < count($data); ++$i)
+  {
+    $card = $data[$i];
+
+    $cardID = $card->id;
+    AddToTries($cardID, $card->id);
+  }
 
   if (!is_dir("./GeneratedCode")) mkdir("./GeneratedCode", 777, true);
 
@@ -40,7 +52,6 @@
   GenerateFunction($titleTrie, $handler, "CardTitle", true, "");
   GenerateFunction($subtitleTrie, $handler, "CardSubtitle", true, "");
   GenerateFunction($costTrie, $handler, "CardCost", false, -1);
-  GenerateFunction($hpTrie, $handler, "CardHP", false, -1);
   GenerateFunction($powerTrie, $handler, "CardPower", false, -1);
   GenerateFunction($leaderLifeTrie, $handler, "CardLeaderLife", false, -1);
   GenerateFunction($counterTrie, $handler, "CardCounter", false, -1);
@@ -51,51 +62,57 @@
   GenerateFunction($searchTypeTrie, $handler, "CardSearchType", true, "");
   GenerateFunction($colorTrie, $handler, "CardColor", true, "");
   GenerateFunction($langTrie, $handler, "CardLang", true, "");
+  GenerateFunction($triggerTrie, $handler, "CardTrigger", true, "");
 
   GenerateFunction($uuidLookupTrie, $handler, "UUIDLookup", true, "");
 
   fwrite($handler, "?>");
 
   fclose($handler);
+}
 
-  function GenerateFunction($cardArray, $handler, $functionName, $isString, $defaultValue, $dataType = 0)
-  {
-    fwrite($handler, "function " . $functionName . "(\$cardID) {\r\n");
-    TraverseTrie($cardArray, "", $handler, $isString, $defaultValue, $dataType);
-    fwrite($handler, "}\r\n\r\n");
-  }
+function GenerateFunction($cardArray, $handler, $functionName, $isString, $defaultValue, $dataType = 0)
+{
+  fwrite($handler, "function " . $functionName . "(\$cardID) {\r\n");
+  TraverseTrie($cardArray, "", $handler, $isString, $defaultValue, $dataType);
+  fwrite($handler, "}\r\n\r\n");
+}
 
-  function AddToTries($cardID, $uuid)
-  {
-    global $uuidLookupTrie, $titleTrie, $subtitleTrie, $costTrie, $hpTrie, $powerTrie, $typeTrie, $counterTrie, $leaderLifeTrie, $colorTrie, $searchTypeTrie, $langTrie, $card;
-    global $aspectsTrie, $arenasTrie;
-    AddToTrie($uuidLookupTrie, $cardID, 0, $uuid);
-    AddToTrie($titleTrie, $uuid, 0, str_replace('"', "'", $card->name));
-    AddToTrie($subtitleTrie, $uuid, 0, str_replace('"', "'", $card->effect));
-    AddToTrie($costTrie, $uuid, 0, $card->cost);
-    AddToTrie($hpTrie, $uuid, 0, $card->power);
-    AddToTrie($powerTrie, $uuid, 0, $card->power);
-    AddToTrie($typeTrie, $uuid, 0, $card->category);
-    AddToTrie($leaderLifeTrie, $uuid, 0, $card->life);
-    AddToTrie($counterTrie, $uuid, 0, $card->counter);
-    AddToTrie($langTrie, $uuid, 0, $card->lang);
-    
-    $searchType = "";
+function AddToTries($cardID, $uuid)
+{
+  global $uuidLookupTrie, $titleTrie, $subtitleTrie, $costTrie, $hpTrie, $powerTrie, $typeTrie, $counterTrie, $leaderLifeTrie, $colorTrie, $searchTypeTrie, $langTrie, $card;
+  global $aspectsTrie, $arenasTrie;
+  AddToTrie($uuidLookupTrie, $cardID, 0, $uuid);
+  AddToTrie($titleTrie, $uuid, 0, str_replace('"', "'", isset($card->name, $card->name) ? $card->name : ""));
+  AddToTrie($subtitleTrie, $uuid, 0, str_replace('"', "'", isset($card->effect, $card->effect) ? $card->effect : ""));
+  AddToTrie($costTrie, $uuid, 0, isset($card->cost, $card->cost) ? $card->cost : -1);
+  AddToTrie($powerTrie, $uuid, 0, isset($card->power, $card->power) ? $card->power : -1);
+  AddToTrie($typeTrie, $uuid, 0, isset($card->category, $card->category) ? $card->category : "");
+  AddToTrie($leaderLifeTrie, $uuid, 0, isset($card->life, $card->life) ? $card->life : -1);
+  AddToTrie($counterTrie, $uuid, 0, isset($card->counter, $card->counter) ? $card->counter : -1);
+  AddToTrie($langTrie, $uuid, 0, isset($card->lang, $card->lang) ? $card->lang : "EN");
+  AddToTrie($triggerTrie, $uuid, 0, isset($card->trigger, $card->trigger) ? $card->trigger : "");
+  
+  $searchType = "";
+  if(isset($card->type, $card->type)) {
     for($j = 0; $j < count($card->type); ++$j)
     {
       if($searchType != "") $searchType .= ",";
       $searchType .= $card->type[$j];
     }
-    AddToTrie($searchTypeTrie, $uuid, 0, $searchType);
+  }
+  AddToTrie($searchTypeTrie, $uuid, 0, $searchType);
 
-    $colors = "";
+  $colors = "";
+  if (isset($card->color, $card->color)) {
     for($j = 0; $j < count($card->color); ++$j)
     {
       if($colors != "") $colors .= ",";
       $colors .= $card->color[$j];
     }
-    AddToTrie($colorTrie, $uuid, 0, $colors);
-
   }
+  AddToTrie($colorTrie, $uuid, 0, $colors);
+
+}
 
 ?>
