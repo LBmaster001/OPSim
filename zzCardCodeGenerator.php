@@ -22,10 +22,12 @@ $triggerTrie = [];
 $dataZip = "./data.zip";
 $zipFile = new ZipArchive;
 $zipFile->open($dataZip);
+echo "Files in Zip: " . $zipFile->numFiles . "<br>";
 for ($i = 0; $i < $zipFile->numFiles; ++$i)
 {
   $filename = $zipFile->getNameIndex($i);
   $content = $zipFile->getFromName($filename);
+  echo "Loading File: " . $filename . "<br>";
   LoadFile($content);
 }
 $zipFile->close();
@@ -33,6 +35,7 @@ $zipFile->close();
 function LoadFile(string $content) : void {
   global $titleTrie, $subtitleTrie, $costTrie, $powerTrie, $leaderLifeTrie, $counterTrie, $aspectsTrie, $traitsTrie, $arenasTrie, $uuidLookupTrie, $typeTrie, $searchTypeTrie, $colorTrie, $langTrie, $triggerTrie;
   $data = json_decode($content);
+  echo "Data OK: " . ($data != null) . " Content Length: " . strlen($content) . "<br>";
 
   for ($i = 0; $i < count($data); ++$i)
   {
