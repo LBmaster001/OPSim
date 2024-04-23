@@ -85,7 +85,7 @@ function GenerateFunction($cardArray, $handler, $functionName, $isString, $defau
 
 function AddToTries($cardID, $uuid)
 {
-  global $uuidLookupTrie, $titleTrie, $subtitleTrie, $costTrie, $hpTrie, $powerTrie, $typeTrie, $counterTrie, $leaderLifeTrie, $colorTrie, $searchTypeTrie, $langTrie, $card;
+  global $uuidLookupTrie, $titleTrie, $subtitleTrie, $costTrie, $hpTrie, $powerTrie, $typeTrie, $counterTrie, $leaderLifeTrie, $colorTrie, $searchTypeTrie, $langTrie, $triggerTrie, $card;
   global $aspectsTrie, $arenasTrie;
   AddToTrie($uuidLookupTrie, $cardID, 0, $uuid);
   AddToTrie($titleTrie, $uuid, 0, str_replace('"', "'", isset($card->name) ? $card->name : ""));
