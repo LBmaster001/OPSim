@@ -95,7 +95,7 @@ if (count($favoriteDecks) == 0) {
 echo ("<br>");
 
 ?>
-<label for="fabdb">Deck Data (Copy Json from) <u><a style='color:lightblue;' href='https://onepiecetopdecks.com/' target='_blank'>One Piece Top Decks</a></u>):</label>
+<label for="fabdb">Deck Data (Copy Json from <u><a style='color:lightblue;' href='https://onepiecetopdecks.com/' target='_blank'>One Piece Top Decks</a></u>):</label>
 <textarea type="textfield" rows="4" id="fabdb" name="fabdb"></textarea>
 <?php
 if (isset($_SESSION["userid"])) {
