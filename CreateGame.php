@@ -13,7 +13,7 @@ include_once './Database/ConnectionManager.php';
 ob_end_clean();
 
 $deck = TryGET("deck");
-$decklink = TryGET("fabdb");
+$deckData = TryGET("fabdb");
 $deckTestMode = TryGET("deckTestMode", "");
 $format = TryGET("format");
 $visibility = TryGET("visibility");

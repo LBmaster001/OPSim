@@ -68,7 +68,7 @@ else echo ("<div class='ContentWindow' style='top:225px; left:32%; width:36%; bo
 <h1><?php echo ($createNewGameText); ?></h1>
 
 <?php
-echo ("<form style='width:100%;display:inline-block;' action='" . $redirectPath . "/CreateGame.php'>");
+echo ("<form style='width:100%;display:inline-block;' action='CreateGame.php'>");
 
 $favoriteDecks = [];
 if (isset($_SESSION["userid"])) {
@@ -95,8 +95,8 @@ if (count($favoriteDecks) == 0) {
 echo ("<br>");
 
 ?>
-<label for="fabdb">Deck Link (use the json export from <u><a style='color:lightblue;' href='https://www.swudb.com/' target='_blank'>SWU DB</a></u>):</label>
-<input type="text" id="fabdb" name="fabdb">
+<label for="fabdb">Deck Data (Copy Json from) <u><a style='color:lightblue;' href='https://onepiecetopdecks.com/' target='_blank'>One Piece Top Decks</a></u>):</label>
+<textarea type="textfield" rows="4" id="fabdb" name="fabdb">
 <?php
 if (isset($_SESSION["userid"])) {
   echo ("<span style='display:inline;'>");
