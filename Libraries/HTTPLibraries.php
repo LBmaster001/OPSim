@@ -29,6 +29,7 @@ function IsDeckLinkValid($deckLink)
 
 function GetGameCounter($path = "./")
 {
+  global $redirectorPath;
   $gameIDCounterFile = $path . "HostFiles/GameIDCounter.txt";
 
   if (!is_file($gameIDCounterFile)) { // if the game ID counter does not exist, make it.
@@ -67,9 +68,8 @@ function SetHeaders()
 {
   // array holding allowed Origin domains
   $allowedOrigins = array(
-    "[0-9a-z\-]*\.karabast\.net",
-    "https\:\/\/karabast\.net",
-    "[0-9a-z\-]*\.karabast-fe\.pages\.dev"
+    "[0-9a-z\-]*\.onepiecesim\.com",
+    "https\:\/\/onepiecesim\.com"
   );
 
   if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != '') {
