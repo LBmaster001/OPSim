@@ -43,6 +43,7 @@ function LoadFile(string $content) : void {
     $card = $data[$i];
 
     $cardID = $card->id;
+    echo "Processing Card: " . $cardID . "<br>";
     AddToTries($cardID, $card->id);
   }
 
@@ -87,18 +88,18 @@ function AddToTries($cardID, $uuid)
   global $uuidLookupTrie, $titleTrie, $subtitleTrie, $costTrie, $hpTrie, $powerTrie, $typeTrie, $counterTrie, $leaderLifeTrie, $colorTrie, $searchTypeTrie, $langTrie, $card;
   global $aspectsTrie, $arenasTrie;
   AddToTrie($uuidLookupTrie, $cardID, 0, $uuid);
-  AddToTrie($titleTrie, $uuid, 0, str_replace('"', "'", isset($card->name, $card->name) ? $card->name : ""));
-  AddToTrie($subtitleTrie, $uuid, 0, str_replace('"', "'", isset($card->effect, $card->effect) ? $card->effect : ""));
-  AddToTrie($costTrie, $uuid, 0, isset($card->cost, $card->cost) ? $card->cost : -1);
-  AddToTrie($powerTrie, $uuid, 0, isset($card->power, $card->power) ? $card->power : -1);
-  AddToTrie($typeTrie, $uuid, 0, isset($card->category, $card->category) ? $card->category : "");
-  AddToTrie($leaderLifeTrie, $uuid, 0, isset($card->life, $card->life) ? $card->life : -1);
-  AddToTrie($counterTrie, $uuid, 0, isset($card->counter, $card->counter) ? $card->counter : -1);
-  AddToTrie($langTrie, $uuid, 0, isset($card->lang, $card->lang) ? $card->lang : "EN");
-  AddToTrie($triggerTrie, $uuid, 0, isset($card->trigger, $card->trigger) ? $card->trigger : "");
+  AddToTrie($titleTrie, $uuid, 0, str_replace('"', "'", isset($card->name) ? $card->name : ""));
+  AddToTrie($subtitleTrie, $uuid, 0, str_replace('"', "'", isset($card->effect) ? $card->effect : ""));
+  AddToTrie($costTrie, $uuid, 0, isset($card->cost) ? $card->cost : -1);
+  AddToTrie($powerTrie, $uuid, 0, isset($card->power) ? $card->power : -1);
+  AddToTrie($typeTrie, $uuid, 0, isset($card->category) ? $card->category : "");
+  AddToTrie($leaderLifeTrie, $uuid, 0, isset($card->life) ? $card->life : -1);
+  AddToTrie($counterTrie, $uuid, 0, isset($card->counter) ? $card->counter : -1);
+  AddToTrie($langTrie, $uuid, 0, isset($card->lang) ? $card->lang : "EN");
+  AddToTrie($triggerTrie, $uuid, 0, isset($card->trigger) ? $card->trigger : "");
   
   $searchType = "";
-  if(isset($card->type, $card->type)) {
+  if(isset($card->type)) {
     for($j = 0; $j < count($card->type); ++$j)
     {
       if($searchType != "") $searchType .= ",";
@@ -108,7 +109,7 @@ function AddToTries($cardID, $uuid)
   AddToTrie($searchTypeTrie, $uuid, 0, $searchType);
 
   $colors = "";
-  if (isset($card->color, $card->color)) {
+  if (isset($card->color)) {
     for($j = 0; $j < count($card->color); ++$j)
     {
       if($colors != "") $colors .= ",";
